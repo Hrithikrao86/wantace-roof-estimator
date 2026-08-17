@@ -18,6 +18,47 @@ The estimator first loads the active configuration from `GET /api/config`. It ne
 
 Configuration edits create a new immutable configuration version. A public estimator session sends the version it started with to `/api/estimate`, so a homeowner already filling out the form is not broken by an owner editing prices or toggling questions. New visitors receive the newest active version.
 
+## Live Deployment
+
+- Public estimator: https://wantace-roof-estimator-five.vercel.app/
+- Owner panel: https://wantace-roof-estimator-five.vercel.app/admin/login
+- Backend API: https://wantace-roof-estimator-fnf5.onrender.com
+- API health check: https://wantace-roof-estimator-fnf5.onrender.com/api/health
+
+### Test owner credentials
+
+```text
+Username: admin
+Password: roofing2026!
+
+
+Then add:
+
+```md
+## Project Structure
+
+```text
+wantace-roof-estimator/
+├── client/
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── services/
+│       └── styles.css
+├── server/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── services/
+│   └── test/
+├── AI_LOG.md
+├── DECISIONS.md
+├── README.md
+└── render.yaml
+
 ## Requirements
 
 - Node.js 18+
@@ -34,7 +75,7 @@ MONGODB_URI=mongodb://127.0.0.1:27017/wantace_roof_estimator
 JWT_SECRET=replace-with-a-long-random-secret
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=roofing2026!
-CLIENT_ORIGIN=http://localhost:5173
+
 ```
 
 For production, use a strong generated JWT secret and do not use the sample admin password.
@@ -106,13 +147,21 @@ The backend uses the deterministic formula specified in the supplied reference d
 
 The default seed modifiers are 10% waste, $350 permit fee, and 12% range spread.
 
-## Verification checklist
 
-Before submission:
 
-- Search the client source for seed labels, option values, and rates. They should not exist in estimator UI code.
-- Change a rate in the owner panel, then open a fresh/incognito estimator and verify the new estimate uses it without a redeploy.
-- Start an estimator flow, change configuration in another browser, then finish the original flow. Its pinned configuration version should still work.
-- Open `/admin` without logging in. It must redirect to `/admin/login`.
-- Confirm `DECISIONS.md` and `AI_LOG.md` exist.
-- Make progressive Git commits during the build.
+
+```md
+## Verification
+
+The following checks were performed during development:
+
+- Confirmed that estimator questions, options, and pricing configuration are
+  loaded from the backend rather than hardcoded in the frontend.
+- Confirmed that the estimator calculates and returns an estimate.
+- Confirmed that submitted leads are persisted in MongoDB.
+- Confirmed that owner authentication protects the owner-only endpoints.
+- Confirmed that changing a configuration through the Owner Panel creates a
+  new configuration version.
+- Confirmed that a new estimator session can use the updated configuration
+  without a server redeployment.
+- Confirmed that `DECISIONS.md` and `AI_LOG.md` are present.
