@@ -18,21 +18,48 @@ because they are lead-capture information rather than estimator configuration.
 ## 2. Calculation approach
 
 The estimate is calculated on the server so that pricing logic and business
-configuration are not exposed as frontend business logic.
+configuration are not placed in the frontend.
 
-The calculation starts with the selected roof area and material rate. A waste
-factor is applied to the roof area, then the material cost is calculated.
-Pitch and number of stories apply their configured multipliers. If existing
-roofing layers need to be removed, the configured tear-off rate is added.
-The configured permit fee is then added to produce the base estimate.
+The calculation first determines the material cost by multiplying roof area
+by the selected material's rate per square foot and applying the configured
+waste factor:
 
-A lower and upper estimate are generated using the configured range spread
-percentage. The server returns both values to the frontend, which only
-displays the result.
+base material cost =
+roof area × material rate × (1 + waste factor)
 
-The server validates the submitted answers against the active configuration
-before calculating an estimate. This prevents invalid values from silently
-producing an estimate.
+The tear-off cost is calculated separately:
+
+tear-off cost =
+roof area × tear-off rate per square foot
+
+The material and tear-off costs are then combined and adjusted using the
+selected roof pitch and number-of-stories multipliers:
+
+adjusted subtotal =
+(base material cost + tear-off cost)
+× pitch multiplier
+× stories multiplier
+
+The configured flat permit fee is then added:
+
+midpoint =
+adjusted subtotal + permit fee
+
+Finally, the configured range spread percentage is applied to the midpoint
+to produce the customer-facing range:
+
+estimate low =
+midpoint × (1 - range spread)
+
+estimate high =
+midpoint × (1 + range spread)
+
+The final low and high values are rounded to the nearest whole number.
+
+The server also checks that the roof area and required material, pitch, layers,
+and stories options are valid before calculating the estimate. Invalid or
+incomplete estimating answers result in an error instead of silently producing
+a value.
 
 ## 3. Configuration versions
 
