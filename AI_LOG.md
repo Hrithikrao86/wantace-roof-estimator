@@ -1,9 +1,34 @@
-# AI Usage Log
+# AI Log
 
-AI tools were used as an implementation accelerator and review partner, not as a substitute for understanding the application. I used ChatGPT/Copilot-style assistance for scaffolding, API shape suggestions, UI iteration, and checking edge cases against the assignment requirements.
+I used ChatGPT as a development assistant throughout this project. I used it
+primarily to understand unfamiliar concepts, reason about the architecture,
+debug errors, review code, and verify deployment behavior. I did not use AI as
+a substitute for understanding the application; I asked for explanations of
+the code and then tested the behavior locally and in production.
 
-One important correction during implementation was to avoid trusting pricing-related values from the browser. A naive implementation can send the selected rates or multipliers back with the estimate request. I rejected that approach: the browser sends only answers and a configuration version, while the server loads the actual configuration and calculates the result.
+One specific example was the MongoDB setup. The initial application failed
+because `MONGODB_URI` was not being loaded. After fixing the environment
+variable, the application produced a DNS/SRV connection error. I investigated
+the MongoDB connection string and verified the SRV records with `nslookup`.
+I eventually switched to the standard MongoDB connection string and verified
+that the server successfully connected to MongoDB and started listening on
+port 5000.
 
-I also deliberately changed the simplest "always use current config" flow into version-pinned estimation. The brief says an owner edit must not break a homeowner mid-flow. Pinning the version makes that requirement explicit: new visitors get the active version while existing visitors can finish against the version they started with.
+Another issue occurred during deployment. The frontend initially failed with
+a CORS error because the Render backend was still using
+`http://localhost:5173` as its allowed origin. I identified that the
+production `CLIENT_ORIGIN` needed to be changed to the Vercel deployment URL.
+The application also exposed a Vercel SPA routing issue when directly opening
+`/admin/login`, which required a Vercel rewrite so React Router could handle
+the route.
 
-The configuration model, validation rules, pricing engine, API boundaries, and final architecture were reviewed and substantially shaped manually. Before submission, I would verify the calculator with independent examples, test the owner edit flow in an incognito browser, and inspect the frontend for forbidden hardcoded pricing/configuration data.
+I substantially worked through the application behavior myself, including
+understanding the separation between frontend configuration and backend
+MongoDB configuration, React state updates, API requests, validation,
+authentication, and the estimator flow. I also manually tested the MongoDB
+connection, estimator calculation, authentication, and deployment rather than
+assuming generated code was correct.
+
+AI was therefore used mainly as a reasoning, explanation, and debugging tool,
+while implementation decisions and verification were made through my own
+testing and iteration.
